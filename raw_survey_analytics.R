@@ -450,7 +450,7 @@ bind_rows(
 # Test for differences
 #-------------------------------------------------------------------------------
 
-dfBoth <- dfBoth %>%
+dfBoth2 <- dfBoth %>%
   mutate(across(contains("Health"), ~ case_when(
     . == "Very bad" ~ 1,
     . == "Bad" ~ 2,
@@ -460,14 +460,14 @@ dfBoth <- dfBoth %>%
     TRUE ~ NA_real_
   )))
     
-mental.24 <- dfBoth %>% 
+mental.24 <- dfBoth2 %>% 
   filter(!is.na(`Mental Health F24`),
          !is.na(`Mental Health S25`)) %>% 
   select(`Mental Health F24`,
          `Mental Health S25`) %>% 
   pull(`Mental Health F24`)
 
-mental.25 <- dfBoth %>% 
+mental.25 <- dfBoth2 %>% 
   filter(!is.na(`Mental Health F24`),
          !is.na(`Mental Health S25`)) %>% 
   select(`Mental Health F24`,
@@ -476,14 +476,14 @@ mental.25 <- dfBoth %>%
 
 wilcox.test(mental.24,mental.25,alternative = "two.sided",paired = TRUE)
 
-physical.24 <- dfBoth %>% 
+physical.24 <- dfBoth2 %>% 
   filter(!is.na(`Physical Health F24`),
          !is.na(`Physical Health S25`)) %>% 
   select(`Physical Health F24`,
          `Physical Health S25`) %>% 
   pull(`Physical Health F24`)
 
-physical.25 <- dfBoth %>% 
+physical.25 <- dfBoth2 %>% 
   filter(!is.na(`Physical Health F24`),
          !is.na(`Physical Health S25`)) %>% 
   select(`Physical Health F24`,
@@ -493,14 +493,14 @@ physical.25 <- dfBoth %>%
 wilcox.test(physical.24,physical.25,alternative = "two.sided",paired = TRUE)
 
 
-social.24 <- dfBoth %>% 
+social.24 <- dfBoth2 %>% 
   filter(!is.na(`Social Health F24`),
          !is.na(`Social Health S25`)) %>% 
   select(`Social Health F24`,
          `Social Health S25`) %>% 
   pull(`Social Health F24`)
 
-social.25 <- dfBoth %>% 
+social.25 <- dfBoth2 %>% 
   filter(!is.na(`Social Health F24`),
          !is.na(`Social Health S25`)) %>% 
   select(`Social Health F24`,
@@ -739,4 +739,5 @@ bind_rows(
         axis.title.y = element_text(face = "bold"),
         axis.text.y = element_text(face = "bold"),
         legend.text = element_text(face = "bold"))
+
 

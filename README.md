@@ -13,7 +13,7 @@ I was fortunate to be a part of [Assessment & Evaluation](https://www.csulb.edu/
 
 Here, I showcase some of the ways I created my visuals.
 
-The dataset shown here, and used in the example above, is purely synthetic and is inspired by the [Campus Pulse Survey](https://www.csulb.edu/student-affairs/assessment-evaluation/student-affairs-surveys).
+The dataset shown here, and used in the presentation above, is purely synthetic and is inspired by the [Campus Pulse Survey](https://www.csulb.edu/student-affairs/assessment-evaluation/student-affairs-surveys).
 
 Using methods for random generation, the dataset has simulated responses for health wellness:
 - Mental Health

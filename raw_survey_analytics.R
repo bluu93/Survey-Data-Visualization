@@ -289,6 +289,45 @@ bind_rows(
         strip.text = element_text(face = "bold")) +  
   labs(x = "Percentage of Participants",y = "")
 
+# Response Rates
+#-------------------------------------------------------------------------------
+
+bind_rows(
+  df24 %>% 
+    select(contains("Health")) %>% 
+    mutate(across(everything(), ~ ifelse(is.na(.), "No", "Yes"))) %>% 
+    mutate("Term" = "Fall"),
+  df25 %>% 
+    select(contains("Health")) %>% 
+    mutate(across(everything(), ~ ifelse(is.na(.), "No", "Yes"))) %>% 
+    mutate("Term" = "Spring")
+) %>% 
+  pivot_longer(cols = !Term,
+               names_to = "Question",values_to = "Responded") %>% 
+  count(Question,Term,Responded) %>% 
+  group_by(Question,Term) %>% 
+  mutate("TermAndCount" = paste(Term,
+                                paste0("(n = ",sum(n),")"),sep = "\n"),
+         Question = factor(Question,levels = c("Mental Health","Physical Health","Social Health")),
+         Responded = factor(Responded,levels = c("No","Yes")),
+         "Proportion" = round(n*100/sum(n))) %>% 
+  ggplot(aes(x = Proportion,y = TermAndCount, fill = Responded)) + 
+  geom_col(color = "black") + 
+  geom_text(aes(label = paste0(Proportion,"%")),
+            position = position_stack(vjust = 0.5),size = 3.5) + 
+  theme_minimal() + 
+  facet_wrap(~Question,scales = "free",dir = "v",ncol = 1) + 
+  theme(strip.text = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold"),
+        axis.text.x = element_text(face = "bold"),
+        axis.title.y = element_blank(),
+        axis.text.y = element_text(face = "bold"),
+        plot.title = element_text(face = "bold"),
+        legend.position = "bottom") + 
+  guides(fill = guide_legend(reverse = TRUE)) + 
+  labs(x = "Percentage of Participants",
+       title = "How did response rates change?",
+       fill = "")
 
 # Distribution of responses
 #-------------------------------------------------------------------------------
@@ -335,6 +374,141 @@ bind_rows(
        y = "Percentage of Respondents",
        title = "How did respondents rate their wellness in Fall and Spring?",
        fill = "")
+
+# How about for double responders?
+#-------------------------------------------------------------------------------
+
+bind_rows(
+  dfBoth %>% 
+    select(contains("Mental Health")) %>% 
+    na.omit() %>% 
+    pivot_longer(cols = everything(),
+                 names_to = "Question",
+                 values_to = "Response") %>% 
+    count(Question,Response) %>% 
+    extract(col = Question, into = c("Type","Term"), regex = "^([\\w]+\\s[\\w]+)\\s(.*)$") %>% 
+    mutate(Term = case_when(
+      Term == "F24" ~ "Fall",
+      Term == "S25" ~ "Spring",
+      TRUE ~ Term
+    )) %>% 
+    group_by(Term) %>% 
+    mutate("Proportion" = round(n*100/sum(n))),
+  dfBoth %>% 
+    select(contains("Physical Health")) %>% 
+    na.omit() %>% 
+    pivot_longer(cols = everything(),
+                 names_to = "Question",
+                 values_to = "Response") %>% 
+    count(Question,Response) %>% 
+    extract(col = Question, into = c("Type","Term"), regex = "^([\\w]+\\s[\\w]+)\\s(.*)$") %>% 
+    mutate(Term = case_when(
+      Term == "F24" ~ "Fall",
+      Term == "S25" ~ "Spring",
+      TRUE ~ Term
+    )) %>% 
+    group_by(Term) %>% 
+    mutate("Proportion" = round(n*100/sum(n))),
+  dfBoth %>% 
+    select(contains("Social Health")) %>% 
+    na.omit() %>% 
+    pivot_longer(cols = everything(),
+                 names_to = "Question",
+                 values_to = "Response") %>% 
+    count(Question,Response) %>% 
+    extract(col = Question, into = c("Type","Term"), regex = "^([\\w]+\\s[\\w]+)\\s(.*)$") %>% 
+    mutate(Term = case_when(
+      Term == "F24" ~ "Fall",
+      Term == "S25" ~ "Spring",
+      TRUE ~ Term
+    )) %>% 
+    group_by(Term) %>% 
+    mutate("Proportion" = round(n*100/sum(n)))
+  ) %>% 
+  group_by(Type,Term) %>% 
+  mutate("TermAndCount" = paste(Term,
+                                paste0("(n = ",sum(n),")"),sep = "\n"),
+         Type = factor(Type,levels = c("Mental Health","Physical Health","Social Health")),
+         Response = factor(Response,levels = likert.order.5)) %>% 
+  ggplot(aes(x = Response,y = Proportion, fill = Response)) + 
+  geom_col(color = "black") + 
+  geom_text(aes(label = paste0(Proportion,"%"),vjust = -0.5)) + 
+  theme_minimal() + 
+  facet_wrap(Type~TermAndCount,scales = "free",dir = "v",nrow = 2) + 
+  scale_y_continuous(limits = c(0,50)) + 
+  scale_fill_manual(values = rev(paletteer_c("grDevices::Geyser",length(likert.order.5)))) + 
+  theme(strip.text = element_text(face = "bold"),
+        axis.text.x = element_blank(),
+        axis.title.y = element_text(face = "bold"),
+        axis.text.y = element_text(face = "bold"),
+        plot.title = element_text(face = "bold"),
+        legend.position = "bottom") + 
+  labs(title = "",
+       fill = "")
+
+
+# Test for differences
+#-------------------------------------------------------------------------------
+
+dfBoth <- dfBoth %>%
+  mutate(across(contains("Health"), ~ case_when(
+    . == "Very bad" ~ 1,
+    . == "Bad" ~ 2,
+    . == "Neither good nor bad" ~ 3,
+    . == "Good" ~ 4,
+    . == "Very good" ~ 5,
+    TRUE ~ NA_real_
+  )))
+    
+mental.24 <- dfBoth %>% 
+  filter(!is.na(`Mental Health F24`),
+         !is.na(`Mental Health S25`)) %>% 
+  select(`Mental Health F24`,
+         `Mental Health S25`) %>% 
+  pull(`Mental Health F24`)
+
+mental.25 <- dfBoth %>% 
+  filter(!is.na(`Mental Health F24`),
+         !is.na(`Mental Health S25`)) %>% 
+  select(`Mental Health F24`,
+         `Mental Health S25`) %>% 
+  pull(`Mental Health S25`)
+
+wilcox.test(mental.24,mental.25,alternative = "two.sided",paired = TRUE)
+
+physical.24 <- dfBoth %>% 
+  filter(!is.na(`Physical Health F24`),
+         !is.na(`Physical Health S25`)) %>% 
+  select(`Physical Health F24`,
+         `Physical Health S25`) %>% 
+  pull(`Physical Health F24`)
+
+physical.25 <- dfBoth %>% 
+  filter(!is.na(`Physical Health F24`),
+         !is.na(`Physical Health S25`)) %>% 
+  select(`Physical Health F24`,
+         `Physical Health S25`) %>% 
+  pull(`Physical Health S25`)
+
+wilcox.test(physical.24,physical.25,alternative = "two.sided",paired = TRUE)
+
+
+social.24 <- dfBoth %>% 
+  filter(!is.na(`Social Health F24`),
+         !is.na(`Social Health S25`)) %>% 
+  select(`Social Health F24`,
+         `Social Health S25`) %>% 
+  pull(`Social Health F24`)
+
+social.25 <- dfBoth %>% 
+  filter(!is.na(`Social Health F24`),
+         !is.na(`Social Health S25`)) %>% 
+  select(`Social Health F24`,
+         `Social Health S25`) %>% 
+  pull(`Social Health S25`)
+
+wilcox.test(social.24,social.25,alternative = "two.sided",paired = TRUE)
+
 
 # Tracking changes across surveys
 #-------------------------------------------------------------------------------
@@ -565,3 +739,4 @@ bind_rows(
         axis.title.y = element_text(face = "bold"),
         axis.text.y = element_text(face = "bold"),
         legend.text = element_text(face = "bold"))
+

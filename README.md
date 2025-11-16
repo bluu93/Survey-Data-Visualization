@@ -4,13 +4,16 @@ This is a brief demonstration for visualizing survey data.
 
 ## **Introduction**
 
-I was fortunate to be a part of [Assessment & Evaluation](https://www.csulb.edu/student-affairs/assessment-evaluation) with the Department of Student Affairs at California State University, Long Beach. As a graduate assistant, I provided analytics on department-issued campus-wide surveys.
-
-Here, I showcase some ways to visualize survey participation and responses.
-The dataset shown here is purely synthetic and is inspired by the [Campus Pulse Survey](https://www.csulb.edu/student-affairs/assessment-evaluation/student-affairs-surveys).
-
+I was fortunate to be a part of [Assessment & Evaluation](https://www.csulb.edu/student-affairs/assessment-evaluation) with the Department of Student Affairs at California State University, Long Beach. As a graduate assistant, I provided analytics on department-issued campus-wide surveys and used PowerPoint for organization and presentation:
+\
+\
+[Survey Analytics Presentation](https://github.com/bluu93/Survey-Data-Visualization/blob/main/SurveyAnalytics.pdf)
 
 ## **Background**
+
+Here, I showcase some of the ways I created my visuals.
+
+The dataset shown here, and used in the example above, is purely synthetic and is inspired by the [Campus Pulse Survey](https://www.csulb.edu/student-affairs/assessment-evaluation/student-affairs-surveys).
 
 Using methods for random generation, the dataset has simulated responses for health wellness:
 - Mental Health
